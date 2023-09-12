@@ -1,0 +1,36 @@
+{
+	"name": "agent-explorer-plugin-graph-view",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "node build.mjs",
+		"serve": "http-server --cors -c-1 -o -p 8080 ./dist",
+		"ngrok": "ngrok http 8080"
+	},
+	"devDependencies": {
+		"@ant-design/icons": "^5.2.5",
+		"@ant-design/pro-components": "^2.6.12",
+		"@react-sigma/core": "^3.4.2",
+		"@react-sigma/layout-circular": "^3.4.2",
+		"@react-sigma/layout-core": "^3.4.2",
+		"@react-sigma/layout-forceatlas2": "^3.4.2",
+		"@types/react": "^18.2.20",
+		"@types/react-router-dom": "^5.3.3",
+		"@veramo-community/veramo-react": "^1.0.82",
+		"@veramo/core": "^5.4.1",
+		"@veramo/core-types": "^5.4.1",
+		"antd": "^5.8.3",
+		"date-fns": "^2.30.0",
+		"esbuild": "^0.19.2",
+		"esbuild-plugin-external-global": "^1.0.1",
+		"graphology": "^0.25.4",
+		"graphology-types": "^0.24.7",
+		"http-server": "^14.1.1",
+		"lodash": "^4.17.21",
+		"react": "^18.2.0",
+		"react-query": "^3.39.3",
+		"react-router-dom": "^6.15.0",
+		"sigma": "3.0.0-alpha3",
+		"typescript": "^5.1.6"
+	}
+}
