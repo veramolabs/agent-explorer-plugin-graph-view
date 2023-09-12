@@ -11,7 +11,7 @@ const Plugin: IPlugin = {
     init: (agent) => {
         return {
           name: 'Graph view',
-          description: 'Explore the agent\'s contacts and credentials in a graph view',
+          description: 'Explore contacts and credentials in a graph view',
           routes: [
             {
               path: '/graph',
