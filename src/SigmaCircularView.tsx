@@ -26,7 +26,7 @@ export const LoadGraph = (props: { nodes: GraphNode[], edges: GraphEdge[]}) => {
 
     try {
       for (const node of props.nodes || []) {
-        graph.addNode(node.id, { x: 0, y: 0, size: 15, label: node.label, color: node.color, image: { url: node.picture } });
+        graph.addNode(node.id, { x: 0, y: 0, size: 15, label: node.label, color: node.color, image: node.picture });
       }
 
       for (const edge of props.edges || []) {

@@ -7,8 +7,7 @@ import { IPlugin } from './types';
 import { GraphView } from './GraphView';
 
 const Plugin: IPlugin = {
-    //@ts-ignore
-    init: (agent) => {
+    init: () => {
         return {
           name: 'Graph view',
           description: 'Explore contacts and credentials in a graph view',
@@ -25,7 +24,7 @@ const Plugin: IPlugin = {
               icon: <PartitionOutlined />,
             },
           ],
-          
+          hasCss: true,
         }
     }
 };

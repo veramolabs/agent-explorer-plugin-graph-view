@@ -4,7 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "node build.mjs",
-		"serve": "http-server --cors -c-1 -o -p 8080 ./dist",
+		"serve": "node build.mjs --serve",
 		"ngrok": "ngrok http 8080"
 	},
 	"devDependencies": {
@@ -25,7 +25,6 @@
 		"esbuild-plugin-external-global": "^1.0.1",
 		"graphology": "^0.25.4",
 		"graphology-types": "^0.24.7",
-		"http-server": "^14.1.1",
 		"lodash": "^4.17.21",
 		"react": "^18.2.0",
 		"react-query": "^3.39.3",

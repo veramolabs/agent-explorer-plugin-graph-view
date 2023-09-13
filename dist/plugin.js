@@ -13937,7 +13937,7 @@ var LoadGraph = (props) => {
     const graph = new import_graphology2.default({ multi: true });
     try {
       for (const node of props.nodes || []) {
-        graph.addNode(node.id, { x: 0, y: 0, size: 15, label: node.label, color: node.color, image: { url: node.picture } });
+        graph.addNode(node.id, { x: 0, y: 0, size: 15, label: node.label, color: node.color, image: node.picture });
       }
       for (const edge of props.edges || []) {
         graph.addEdge(edge.source, edge.target);
@@ -14067,8 +14067,7 @@ var GraphView = () => {
 // src/index.tsx
 var import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
 var Plugin = {
-  //@ts-ignore
-  init: (agent) => {
+  init: () => {
     return {
       name: "Graph view",
       description: "Explore contacts and credentials in a graph view",
@@ -14084,7 +14083,8 @@ var Plugin = {
           path: "/graph",
           icon: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PartitionOutlined_default2, {})
         }
-      ]
+      ],
+      hasCss: true
     };
   }
 };
