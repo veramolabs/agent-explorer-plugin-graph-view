@@ -3,7 +3,7 @@ import {
   PartitionOutlined,
 } from '@ant-design/icons'
 
-import { IPlugin } from './types';
+import { IPlugin } from '@veramo-community/agent-explorer-plugin';
 import { GraphView } from './GraphView';
 
 const Plugin: IPlugin = {
@@ -11,6 +11,7 @@ const Plugin: IPlugin = {
         return {
           name: 'Graph view',
           description: 'Explore contacts and credentials in a graph view',
+          requiredMethods: ['dataStoreORMGetVerifiableCredentials', 'dataStoreORMGetIdentifiers', 'didManagerFind'],
           routes: [
             {
               path: '/graph',

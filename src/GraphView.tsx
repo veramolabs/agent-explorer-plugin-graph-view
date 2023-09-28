@@ -3,7 +3,7 @@ import { Spin, Tabs, theme } from 'antd';
 import { useVeramo } from '@veramo-community/veramo-react'
 import { useQuery } from 'react-query'
 import { IDIDManager, IDataStoreORM } from "@veramo/core";
-import { getIssuerDID, shortId } from "./utils/did";
+import { getIssuerDID, shortId } from "@veramo-community/agent-explorer-plugin";
 import { SigmaCircularView } from "./SigmaCircularView";
 import { GraphEdge, GraphNode, IIdentifierProfile } from "./types";
 

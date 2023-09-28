@@ -103,6 +103,13 @@ var require_react_query = __commonJS({
   }
 });
 
+// external-global-plugin:@veramo-community/agent-explorer-plugin
+var require_agent_explorer_plugin = __commonJS({
+  "external-global-plugin:@veramo-community/agent-explorer-plugin"(exports, module) {
+    module.exports = window.agentexplorerplugin;
+  }
+});
+
 // node_modules/.pnpm/graphology@0.25.4_graphology-types@0.24.7/node_modules/graphology/dist/graphology.umd.min.js
 var require_graphology_umd_min = __commonJS({
   "node_modules/.pnpm/graphology@0.25.4_graphology-types@0.24.7/node_modules/graphology/dist/graphology.umd.min.js"(exports, module) {
@@ -13636,43 +13643,7 @@ var import_react7 = __toESM(require_react(), 1);
 var import_antd2 = __toESM(require_antd(), 1);
 var import_veramo_react = __toESM(require_veramo_react(), 1);
 var import_react_query = __toESM(require_react_query(), 1);
-
-// src/utils/did.ts
-function shortId(id) {
-  if (!id)
-    return "";
-  function shortDotSeparatedString(str) {
-    const parts2 = str.split(".");
-    if (parts2.length === 1) {
-      return str;
-    }
-    return parts2.map((part) => {
-      if (part.length > 10) {
-        return part.substring(0, 1) + "." + part.substring(part.length - 1);
-      } else {
-        return part;
-      }
-    }).join(".");
-  }
-  const parts = id.split(":");
-  return parts.map((part) => {
-    if (part.length > 41) {
-      const str = shortDotSeparatedString(part);
-      if (part !== str)
-        return str;
-      return str.substring(0, 7) + "..." + str.substring(str.length - 5);
-    } else {
-      return part;
-    }
-  }).join(":");
-}
-function getIssuerDID(credential) {
-  if (typeof credential.issuer === "string") {
-    return credential.issuer;
-  } else {
-    return credential.issuer.id;
-  }
-}
+var import_agent_explorer_plugin = __toESM(require_agent_explorer_plugin(), 1);
 
 // src/SigmaCircularView.tsx
 var import_react6 = __toESM(require_react(), 1);
@@ -14035,7 +14006,7 @@ var GraphView = () => {
     const nodes = profiles.map((profile) => {
       return {
         id: profile.did,
-        label: profile.name || shortId(profile.did),
+        label: profile.name || (0, import_agent_explorer_plugin.shortId)(profile.did),
         color: token.colorPrimary,
         picture: profile.picture || void 0
       };
@@ -14044,7 +14015,7 @@ var GraphView = () => {
     const edges = credentials?.map((credential) => {
       return {
         id: credential.verifiableCredential.id,
-        source: getIssuerDID(credential.verifiableCredential),
+        source: (0, import_agent_explorer_plugin.getIssuerDID)(credential.verifiableCredential),
         target: credential.verifiableCredential.credentialSubject.id || "",
         label: "relation",
         color: "#ccc"
@@ -14071,6 +14042,7 @@ var Plugin = {
     return {
       name: "Graph view",
       description: "Explore contacts and credentials in a graph view",
+      requiredMethods: ["dataStoreORMGetVerifiableCredentials", "dataStoreORMGetIdentifiers", "didManagerFind"],
       routes: [
         {
           path: "/graph",
