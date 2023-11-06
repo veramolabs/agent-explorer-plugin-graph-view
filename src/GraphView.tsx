@@ -1,19 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Spin, Tabs, theme } from 'antd';
 import { useVeramo } from '@veramo-community/veramo-react'
 import { useQuery } from 'react-query'
 import { IDIDManager, IDataStoreORM } from "@veramo/core";
 import { getIssuerDID, shortId } from "@veramo-community/agent-explorer-plugin";
-import { SigmaCircularView } from "./SigmaCircularView";
 import { GraphEdge, GraphNode, IIdentifierProfile } from "./types";
+import { SigmaForceView } from "./SigmaForce";
 
 export const GraphView = () => {
   const { token } = theme.useToken()
   const { agent } = useVeramo<IDataStoreORM & IDIDManager>()
-  const [ uniqueIdentifiers, setUniqueIdentifiers ] = useState<string[]>([])
   const [ profiles, setProfiles ] = useState<IIdentifierProfile[]>([])
-  const [ graphNodes, setGraphNodes ] = useState<GraphNode[]>([])
-  const [ graphEdges, setGraphEdges ] = useState<GraphEdge[]>([])
   const [ isLoadingProfiles, setIsLoadingProfiles ] = useState<boolean>(true)
 
   const { data: credentials, isLoading: isLoadingCredentials } = useQuery(
@@ -30,16 +27,19 @@ export const GraphView = () => {
   )
 
   const { data: identifiers, isLoading: isLoadingIdentifiers} = 
-  useQuery(['identifiers', { agentId: agent?.context.id }], () =>
-    agent?.didManagerFind(),
+  useQuery(
+    ['identifiers', { agentId: agent?.context.id }], 
+    () => agent?.didManagerFind(),
+    { enabled: !!agent?.didManagerFind}
   )
 
-  useEffect(() => {
-    setUniqueIdentifiers( [...new Set([
+  const uniqueIdentifiers = useMemo(() => {
+     return [...new Set([
       ...(contacts?.map(c => c.did || '') || []),
       ...(identifiers?.map(i => i.did) || [])
-    ])])
+    ])]
   }, [contacts, identifiers])
+
 
   useEffect(() => {
 
@@ -54,50 +54,62 @@ export const GraphView = () => {
       setProfiles(profiles)
       setIsLoadingProfiles(false)
     }
-
-    fetchProfiles()
+    if (!isLoadingIdentifiers && !isLoadingContacts) {
+      console.log('fetching profiles')
+      fetchProfiles()
+    }
    
-  }, [uniqueIdentifiers]);
+  }, [uniqueIdentifiers, isLoadingIdentifiers, isLoadingContacts]);
 
   const isLoading = isLoadingCredentials || isLoadingContacts || isLoadingIdentifiers || isLoadingProfiles
   
-  useEffect(() => {
+  const { nodes, edges } = useMemo(() => {
     const nodes = profiles.map((profile) => {
       return {
         id: profile.did,
         label: profile.name || shortId(profile.did),
         color: token.colorPrimary,
         picture: profile.picture || undefined,
+        size: 15
       }
     })
 
-    setGraphNodes(nodes)
 
-    const edges = credentials?.map((credential) => {
-      return {
-        id: credential.verifiableCredential.id,
+    const edges: GraphEdge[] = []
+    
+    credentials?.forEach((credential) => {
+      nodes.push({
+        id: credential.hash,
+        label: (credential.verifiableCredential?.type as string[]).join(',') || '',
+        color: token.colorPrimary,
+        picture: '',
+        size: 2,
+      })
+      edges.push({
+        id: credential.hash + 'from',
         source: getIssuerDID(credential.verifiableCredential),
+        target: credential.hash,
+        label: 'relation',
+        color: token.colorBorder,
+      })
+      edges.push({
+        id: credential.verifiableCredential.id,
+        source: credential.hash,
         target: credential.verifiableCredential.credentialSubject.id || '',
         label: 'relation',
-        color: '#ccc',
-      }
-    }) || []
+        color: token.colorBorder,
+      })
+    })
 
-    setGraphEdges(edges)
+    return {nodes, edges}
 
-  }, [credentials, profiles, setGraphNodes, setGraphEdges ]);
+  }, [credentials, profiles ]);
 
   if (isLoading) {
     return <Spin />
   }
 
   return (
-    <Tabs defaultActiveKey="1" items={[
-      {
-        key: '1',
-        label: 'Sigma Circular',
-        children: <SigmaCircularView nodes={graphNodes} edges={graphEdges} />,
-      }
-    ]} />
+    <SigmaForceView nodes={nodes} edges={edges} />
   );
 };

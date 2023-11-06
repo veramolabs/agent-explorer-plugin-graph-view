@@ -4,6 +4,7 @@ export type GraphNode = {
   id: string;
   label: string;
   color: string;
+  size: number;
   picture?: string;
 }
 
