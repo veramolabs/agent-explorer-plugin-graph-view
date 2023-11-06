@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Graph from "graphology";
 import { LayoutForceAtlas2Control, useLayoutForceAtlas2 } from "@react-sigma/layout-forceatlas2";
 import { MultiDirectedGraph } from "graphology";
 import "@react-sigma/core/lib/react-sigma.min.css";
 import getNodeProgramImage from "sigma/rendering/webgl/programs/node.image";
+import forceAtlas2 from 'graphology-layout-forceatlas2';
 import { theme } from 'antd'
 import {
   SigmaContainer,
@@ -20,10 +21,9 @@ import { customDrawHover } from "./hoverRender";
 
 export const LoadGraph = (props: { nodes: GraphNode[], edges: GraphEdge[]}) => {
   const loadGraph = useLoadGraph();
-  const { assign } = useLayoutForceAtlas2({iterations: 150, settings: {gravity: 30}});
 
 
-  useEffect(() => {
+  const graph = useMemo(() => {
     const graph = new Graph({ multi: true});
 
     try {
@@ -44,6 +44,13 @@ export const LoadGraph = (props: { nodes: GraphNode[], edges: GraphEdge[]}) => {
     } catch (e) {
       console.log(e)
     }
+    return graph
+  }, [props.nodes, props.edges]);
+
+  const { assign } = useLayoutForceAtlas2({iterations: 150, settings: forceAtlas2.inferSettings(graph)});
+
+
+  useEffect(() => {
 
     loadGraph(graph);
     assign();

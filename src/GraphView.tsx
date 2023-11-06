@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Spin, Tabs, theme } from 'antd';
 import { useVeramo } from '@veramo-community/veramo-react'
 import { useQuery } from 'react-query'
-import { IDIDManager, IDataStoreORM } from "@veramo/core";
+import { IDIDManager, IDataStoreORM, UniqueVerifiableCredential } from "@veramo/core";
 import { getIssuerDID, shortId } from "@veramo-community/agent-explorer-plugin";
 import { GraphEdge, GraphNode, IIdentifierProfile } from "./types";
 import { SigmaForceView } from "./SigmaForce";
@@ -80,10 +80,10 @@ export const GraphView = () => {
     credentials?.forEach((credential) => {
       nodes.push({
         id: credential.hash,
-        label: (credential.verifiableCredential?.type as string[]).join(',') || '',
+        label: getCredentialLabel(credential),
         color: token.colorPrimary,
         picture: '',
-        size: 2,
+        size: 5,
       })
       edges.push({
         id: credential.hash + 'from',
@@ -92,13 +92,15 @@ export const GraphView = () => {
         label: 'relation',
         color: token.colorBorder,
       })
-      edges.push({
-        id: credential.verifiableCredential.id,
-        source: credential.hash,
-        target: credential.verifiableCredential.credentialSubject.id || '',
-        label: 'relation',
-        color: token.colorBorder,
-      })
+      if (credential.verifiableCredential.credentialSubject.id) {
+        edges.push({
+          id: credential.verifiableCredential.id,
+          source: credential.hash,
+          target: credential.verifiableCredential.credentialSubject.id || '',
+          label: 'relation',
+          color: token.colorBorder,
+        })
+      }
     })
 
     return {nodes, edges}
@@ -113,3 +115,15 @@ export const GraphView = () => {
     <SigmaForceView nodes={nodes} edges={edges} />
   );
 };
+
+function getCredentialLabel (credential: UniqueVerifiableCredential): string {
+
+  if (credential.verifiableCredential?.type?.includes('Kudos')) {
+    return credential.verifiableCredential?.credentialSubject?.kudos || ''
+  }
+  if (credential.verifiableCredential?.type?.includes('BrainSharePost')) {
+    return credential.verifiableCredential?.credentialSubject?.title || credential.verifiableCredential?.credentialSubject?.post || ''
+  }
+
+  return (credential.verifiableCredential?.type as string[]).join(',') || ''
+}

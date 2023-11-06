@@ -15196,6 +15196,7 @@ var c3 = ({ id: o4, className: t3, style: a3, settings: e4 = {}, autoRunFor: l4,
 // src/SigmaForce.tsx
 var import_graphology3 = __toESM(require_graphology_umd_min(), 1);
 var import_node = __toESM(require_node_image(), 1);
+var import_graphology_layout_forceatlas22 = __toESM(require_graphology_layout_forceatlas2(), 1);
 var import_antd = __toESM(require_antd(), 1);
 
 // src/utils/use-resize.ts
@@ -15247,12 +15248,11 @@ function drawLabel(context, data, settings) {
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 var LoadGraph = (props) => {
   const loadGraph = y();
-  const { assign } = l3({ iterations: 150, settings: { gravity: 30 } });
-  (0, import_react7.useEffect)(() => {
-    const graph = new import_graphology2.default({ multi: true });
+  const graph = (0, import_react7.useMemo)(() => {
+    const graph2 = new import_graphology2.default({ multi: true });
     try {
       for (const node of props.nodes || []) {
-        graph.addNode(node.id, {
+        graph2.addNode(node.id, {
           x: Math.random() * 1e3,
           y: Math.random() * 1e3,
           size: node.size,
@@ -15262,11 +15262,15 @@ var LoadGraph = (props) => {
         });
       }
       for (const edge of props.edges || []) {
-        graph.addEdge(edge.source, edge.target);
+        graph2.addEdge(edge.source, edge.target);
       }
     } catch (e4) {
       console.log(e4);
     }
+    return graph2;
+  }, [props.nodes, props.edges]);
+  const { assign } = l3({ iterations: 150, settings: import_graphology_layout_forceatlas22.default.inferSettings(graph) });
+  (0, import_react7.useEffect)(() => {
     loadGraph(graph);
     assign();
   }, [loadGraph, props.nodes, props.edges, assign]);
@@ -15375,10 +15379,10 @@ var GraphView = () => {
     credentials?.forEach((credential) => {
       nodes2.push({
         id: credential.hash,
-        label: (credential.verifiableCredential?.type).join(",") || "",
+        label: getCredentialLabel(credential),
         color: token.colorPrimary,
         picture: "",
-        size: 2
+        size: 5
       });
       edges2.push({
         id: credential.hash + "from",
@@ -15387,13 +15391,15 @@ var GraphView = () => {
         label: "relation",
         color: token.colorBorder
       });
-      edges2.push({
-        id: credential.verifiableCredential.id,
-        source: credential.hash,
-        target: credential.verifiableCredential.credentialSubject.id || "",
-        label: "relation",
-        color: token.colorBorder
-      });
+      if (credential.verifiableCredential.credentialSubject.id) {
+        edges2.push({
+          id: credential.verifiableCredential.id,
+          source: credential.hash,
+          target: credential.verifiableCredential.credentialSubject.id || "",
+          label: "relation",
+          color: token.colorBorder
+        });
+      }
     });
     return { nodes: nodes2, edges: edges2 };
   }, [credentials, profiles]);
@@ -15402,6 +15408,15 @@ var GraphView = () => {
   }
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(SigmaForceView, { nodes, edges });
 };
+function getCredentialLabel(credential) {
+  if (credential.verifiableCredential?.type?.includes("Kudos")) {
+    return credential.verifiableCredential?.credentialSubject?.kudos || "";
+  }
+  if (credential.verifiableCredential?.type?.includes("BrainSharePost")) {
+    return credential.verifiableCredential?.credentialSubject?.title || credential.verifiableCredential?.credentialSubject?.post || "";
+  }
+  return (credential.verifiableCredential?.type).join(",") || "";
+}
 
 // src/index.tsx
 var import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
