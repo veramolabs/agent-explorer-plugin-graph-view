@@ -15253,8 +15253,8 @@ var LoadGraph = (props) => {
     try {
       for (const node of props.nodes || []) {
         graph2.addNode(node.id, {
-          x: Math.random() * 1e3,
-          y: Math.random() * 1e3,
+          x: Math.random() * 1,
+          y: Math.random() * 1,
           size: node.size,
           label: node.label,
           color: node.color,
@@ -15262,14 +15262,14 @@ var LoadGraph = (props) => {
         });
       }
       for (const edge of props.edges || []) {
-        graph2.addEdge(edge.source, edge.target);
+        graph2.addEdge(edge.source, edge.target, { size: 1.5, color: edge.color });
       }
     } catch (e4) {
       console.log(e4);
     }
     return graph2;
   }, [props.nodes, props.edges]);
-  const { assign } = l3({ iterations: 150, settings: import_graphology_layout_forceatlas22.default.inferSettings(graph) });
+  const { assign } = l3({ iterations: 150, settings: { ...import_graphology_layout_forceatlas22.default.inferSettings(graph), scalingRatio: 100 } });
   (0, import_react7.useEffect)(() => {
     loadGraph(graph);
     assign();
@@ -15366,6 +15366,8 @@ var GraphView = () => {
   }, [uniqueIdentifiers, isLoadingIdentifiers, isLoadingContacts]);
   const isLoading = isLoadingCredentials || isLoadingContacts || isLoadingIdentifiers || isLoadingProfiles;
   const { nodes, edges } = (0, import_react8.useMemo)(() => {
+    if (!agent)
+      return { nodes: [], edges: [] };
     const nodes2 = profiles.map((profile) => {
       return {
         id: profile.did,
@@ -15377,45 +15379,112 @@ var GraphView = () => {
     });
     const edges2 = [];
     credentials?.forEach((credential) => {
-      nodes2.push({
-        id: credential.hash,
-        label: getCredentialLabel(credential),
-        color: token.colorPrimary,
-        picture: "",
-        size: 5
-      });
+      if (nodes2.find((n3) => n3.id !== credential.hash)) {
+        nodes2.push(getCredentialNode(credential, token));
+      }
       edges2.push({
         id: credential.hash + "from",
         source: (0, import_agent_explorer_plugin.getIssuerDID)(credential.verifiableCredential),
         target: credential.hash,
-        label: "relation",
+        label: "from",
         color: token.colorBorder
       });
-      if (credential.verifiableCredential.credentialSubject.id) {
-        edges2.push({
-          id: credential.verifiableCredential.id,
-          source: credential.hash,
-          target: credential.verifiableCredential.credentialSubject.id || "",
-          label: "relation",
-          color: token.colorBorder
-        });
-      }
+      const { nodes: nodes22, edges: edges22 } = getNodesAndEdgesForCredential(credential, token);
+      nodes22.forEach((n3) => {
+        if (!nodes2.find((n22) => n22.id === n3.id)) {
+          nodes2.push(n3);
+        }
+      });
+      edges22.forEach((e4) => {
+        if (!edges2.find((e22) => e22.id === e4.id)) {
+          edges2.push(e4);
+        }
+      });
     });
     return { nodes: nodes2, edges: edges2 };
-  }, [credentials, profiles]);
+  }, [credentials, profiles, agent]);
   if (isLoading) {
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_antd2.Spin, {});
   }
   return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(SigmaForceView, { nodes, edges });
 };
-function getCredentialLabel(credential) {
+function getCredentialNode(credential, token) {
+  let label = (credential.verifiableCredential?.type).join(",") || "";
+  let picture = "";
+  let color = token.colorPrimary;
+  let size = 8;
+  if (credential.verifiableCredential?.type?.includes("Reaction")) {
+    label = "Reaction";
+    color = token.colorBgContainer;
+    picture = emojiToDataURL(credential.verifiableCredential?.credentialSubject?.emoji);
+  }
+  if (credential.verifiableCredential?.type?.includes("Profile")) {
+    label = "Profile";
+    color = token.colorBgContainer;
+    picture = emojiToDataURL("\u{1F4C4}");
+  }
   if (credential.verifiableCredential?.type?.includes("Kudos")) {
-    return credential.verifiableCredential?.credentialSubject?.kudos || "";
+    label = credential.verifiableCredential?.credentialSubject?.kudos || "";
+    color = token.colorBgContainer;
+    picture = emojiToDataURL("\u{1F3C6}");
   }
   if (credential.verifiableCredential?.type?.includes("BrainSharePost")) {
-    return credential.verifiableCredential?.credentialSubject?.title || credential.verifiableCredential?.credentialSubject?.post || "";
+    label = credential.verifiableCredential?.credentialSubject?.title || credential.verifiableCredential?.credentialSubject?.post.substring(0, 20) || "";
+    color = token.colorBgContainer;
+    picture = emojiToDataURL("\u{1F4AC}");
+    size = 10;
   }
-  return (credential.verifiableCredential?.type).join(",") || "";
+  return {
+    label,
+    id: credential.hash,
+    color,
+    picture,
+    size
+  };
+}
+function emojiToDataURL(emoji) {
+  const codePoint = emoji.codePointAt(0) || 0;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+    <text x="8" y="50" font-size="46">${String.fromCodePoint(codePoint)}</text>
+  </svg>`;
+  const dataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  return dataUrl;
+}
+function getNodesAndEdgesForCredential(credential, token) {
+  const nodes = [];
+  const edges = [];
+  if (credential.verifiableCredential?.type?.includes("BrainSharePost")) {
+    const markdown = credential.verifiableCredential?.credentialSubject?.post || "";
+    const postReferences = markdown.match(/did(.*)\/([0-9a-zA-Z]*)\b/g);
+    postReferences?.forEach((postReference) => {
+      edges.push({
+        id: credential.hash + "to",
+        source: credential.hash,
+        target: postReference.split("/").pop() || "",
+        label: "to",
+        color: token.colorBorder
+      });
+    });
+  }
+  if (credential.verifiableCredential.credentialSubject.id) {
+    edges.push({
+      id: credential.hash + "to",
+      source: credential.hash,
+      target: credential.verifiableCredential.credentialSubject.id,
+      label: "to",
+      color: token.colorBorder
+    });
+  }
+  if (credential.verifiableCredential.credentialSubject.hash) {
+    edges.push({
+      id: credential.hash + "to",
+      source: credential.hash,
+      target: credential.verifiableCredential.credentialSubject.hash,
+      label: "to",
+      color: token.colorBorder
+    });
+  }
+  return { nodes, edges };
 }
 
 // src/index.tsx

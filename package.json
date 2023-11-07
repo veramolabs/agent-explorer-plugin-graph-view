@@ -20,8 +20,10 @@
 		"@veramo-community/veramo-react": "^1.6.1",
 		"@veramo/core": "5.5.4-next.22",
 		"@veramo/core-types": "5.5.4-next.22",
+		"@veramo/utils": "5.5.4-next.22",
 		"antd": "^5.8.3",
 		"date-fns": "^2.30.0",
+		"did-jwt-vc": "^3.2.14",
 		"esbuild": "^0.19.2",
 		"esbuild-plugin-external-global": "^1.0.1",
 		"graphology": "^0.25.4",
@@ -33,5 +35,8 @@
 		"react-router-dom": "^6.15.0",
 		"sigma": "3.0.0-alpha3",
 		"typescript": "^5.1.6"
+	},
+	"dependencies": {
+		"ethers": "^6.8.1"
 	}
 }

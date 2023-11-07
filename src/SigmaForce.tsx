@@ -29,8 +29,8 @@ export const LoadGraph = (props: { nodes: GraphNode[], edges: GraphEdge[]}) => {
     try {
       for (const node of props.nodes || []) {
         graph.addNode(node.id, { 
-          x: Math.random() * 1000, 
-          y: Math.random() * 1000, 
+          x: Math.random() * 1, 
+          y: Math.random() * 1, 
           size: node.size,
           label: node.label,
           color: node.color, 
@@ -39,7 +39,7 @@ export const LoadGraph = (props: { nodes: GraphNode[], edges: GraphEdge[]}) => {
       }
 
       for (const edge of props.edges || []) {
-        graph.addEdge(edge.source, edge.target);
+        graph.addEdge(edge.source, edge.target, {size: 1.5, color: edge.color});
       }
     } catch (e) {
       console.log(e)
@@ -47,7 +47,7 @@ export const LoadGraph = (props: { nodes: GraphNode[], edges: GraphEdge[]}) => {
     return graph
   }, [props.nodes, props.edges]);
 
-  const { assign } = useLayoutForceAtlas2({iterations: 150, settings: forceAtlas2.inferSettings(graph)});
+  const { assign } = useLayoutForceAtlas2({iterations: 150, settings: {...forceAtlas2.inferSettings(graph), scalingRatio: 100}});
 
 
   useEffect(() => {
