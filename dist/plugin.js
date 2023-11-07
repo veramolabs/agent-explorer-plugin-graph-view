@@ -15425,6 +15425,7 @@ var Plugin = {
     return {
       name: "Graph view",
       description: "Explore contacts and credentials in a graph view",
+      icon: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PartitionOutlined_default2, {}),
       requiredMethods: ["dataStoreORMGetVerifiableCredentials", "dataStoreORMGetIdentifiers"],
       routes: [
         {

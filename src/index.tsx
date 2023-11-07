@@ -11,6 +11,7 @@ const Plugin: IPlugin = {
         return {
           name: 'Graph view',
           description: 'Explore contacts and credentials in a graph view',
+          icon: <PartitionOutlined />,
           requiredMethods: ['dataStoreORMGetVerifiableCredentials', 'dataStoreORMGetIdentifiers'],
           routes: [
             {
