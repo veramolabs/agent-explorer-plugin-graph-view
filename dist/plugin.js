@@ -15269,7 +15269,7 @@ var LoadGraph = (props) => {
     }
     return graph2;
   }, [props.nodes, props.edges]);
-  const { assign } = l3({ iterations: 150, settings: { ...import_graphology_layout_forceatlas22.default.inferSettings(graph), scalingRatio: 100 } });
+  const { assign } = l3({ iterations: 250, settings: { ...import_graphology_layout_forceatlas22.default.inferSettings(graph), gravity: 100, scalingRatio: 0.1 } });
   (0, import_react7.useEffect)(() => {
     loadGraph(graph);
     assign();
@@ -15310,7 +15310,7 @@ var SigmaForceView = (props) => {
       children: [
         /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoadGraph, { nodes: props.nodes, edges: props.edges }),
         /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(S, { position: "bottom-right", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(c3, { settings: { settings: { slowDown: 10 } }, labels: { stop: "STOP", start: "START" }, autoRunFor: 2e3 }),
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(c3, { autoRunFor: 3e3 }),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(I, {}),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(q, {})
         ] }),
@@ -15445,7 +15445,7 @@ function getCredentialNode(credential, token) {
 function emojiToDataURL(emoji) {
   const codePoint = emoji.codePointAt(0) || 0;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-    <text x="8" y="50" font-size="46">${String.fromCodePoint(codePoint)}</text>
+    <text x="8" y="36" font-size="35">${String.fromCodePoint(codePoint)}</text>
   </svg>`;
   const dataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
   return dataUrl;
@@ -15457,12 +15457,19 @@ function getNodesAndEdgesForCredential(credential, token) {
     const markdown = credential.verifiableCredential?.credentialSubject?.post || "";
     const postReferences = markdown.match(/did(.*)\/([0-9a-zA-Z]*)\b/g);
     postReferences?.forEach((postReference) => {
+      const hash = postReference.split("/").pop() || "";
       edges.push({
         id: credential.hash + "to",
         source: credential.hash,
-        target: postReference.split("/").pop() || "",
+        target: hash,
         label: "to",
         color: token.colorBorder
+      });
+      nodes.push({
+        id: hash,
+        label: hash,
+        color: token.colorPrimary,
+        size: 8
       });
     });
   }

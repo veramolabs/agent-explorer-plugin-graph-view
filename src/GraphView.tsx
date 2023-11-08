@@ -162,7 +162,7 @@ function getCredentialNode (credential: UniqueVerifiableCredential, token: Globa
 function emojiToDataURL(emoji: string): string {
   const codePoint = emoji.codePointAt(0) || 0;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-    <text x="8" y="50" font-size="46">${String.fromCodePoint(codePoint)}</text>
+    <text x="8" y="36" font-size="35">${String.fromCodePoint(codePoint)}</text>
   </svg>`;
 
   const dataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
@@ -178,12 +178,20 @@ function getNodesAndEdgesForCredential(credential: UniqueVerifiableCredential, t
     
     const postReferences = markdown.match(/did(.*)\/([0-9a-zA-Z]*)\b/g)
     postReferences?.forEach((postReference: string) => {
+      const hash = postReference.split('/').pop() || ''
       edges.push({
         id: credential.hash + 'to',
         source: credential.hash,
-        target: postReference.split('/').pop() || '',
+        target: hash,
         label: 'to',
         color: token.colorBorder,
+      })
+
+      nodes.push({
+        id: hash,
+        label: hash,
+        color: token.colorPrimary,
+        size: 8
       })
     })
 

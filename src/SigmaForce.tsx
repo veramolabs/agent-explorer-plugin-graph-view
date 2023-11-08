@@ -47,7 +47,7 @@ export const LoadGraph = (props: { nodes: GraphNode[], edges: GraphEdge[]}) => {
     return graph
   }, [props.nodes, props.edges]);
 
-  const { assign } = useLayoutForceAtlas2({iterations: 150, settings: {...forceAtlas2.inferSettings(graph), scalingRatio: 100}});
+  const { assign } = useLayoutForceAtlas2({iterations: 250, settings: {...forceAtlas2.inferSettings(graph), gravity: 100, scalingRatio: 0.1}});
 
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export const SigmaForceView = (props: { nodes: GraphNode[], edges: GraphEdge[]})
       >
       <LoadGraph nodes={props.nodes} edges={props.edges}/>
       <ControlsContainer position={"bottom-right"}>
-        <LayoutForceAtlas2Control settings={{ settings: { slowDown: 10 } }} labels={{ stop: "STOP", start: "START" }} autoRunFor={2000}/>
+        <LayoutForceAtlas2Control autoRunFor={3000}/>
         <ZoomControl />
         <FullScreenControl />
       </ControlsContainer>
