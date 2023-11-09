@@ -66,7 +66,7 @@ export const SigmaForceView = (props: { nodes: GraphNode[], edges: GraphEdge[]})
 
   return (
     <SigmaContainer 
-      style={{ height: size.height - 200, backgroundColor: token.colorBgLayout }}
+      style={{ height: size.height - 100, backgroundColor: token.colorBgLayout }}
       graph={MultiDirectedGraph}
       settings={{
         nodeProgramClasses: { 

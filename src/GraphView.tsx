@@ -161,8 +161,8 @@ function getCredentialNode (credential: UniqueVerifiableCredential, token: Globa
 
 function emojiToDataURL(emoji: string): string {
   const codePoint = emoji.codePointAt(0) || 0;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-    <text x="8" y="36" font-size="35">${String.fromCodePoint(codePoint)}</text>
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+    <text x="13" y="20" font-size="20px" text-anchor="middle">${String.fromCodePoint(codePoint)}</text>
   </svg>`;
 
   const dataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
